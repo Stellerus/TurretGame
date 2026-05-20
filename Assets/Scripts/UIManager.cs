@@ -88,7 +88,7 @@ interactPrompt.SetActive(show);
 
 if (show && interactLabel != null)
 {
-interactLabel.text = "Нажми E чтобы сесть за турель";
+interactLabel.text = "Press E to seat";
 }
 }
 
@@ -96,13 +96,13 @@ void OnRunPhaseStart()
 {
 if (gameOverPanel != null) gameOverPanel.SetActive(false);
 if (timerPanel != null) timerPanel.SetActive(true);
-if (phaseLabel != null) phaseLabel.text = "БЕГИ К ТУРЕЛИ!";
+if (phaseLabel != null) phaseLabel.text = "Run to the turrel!!!";
 if (crosshair != null) crosshair.SetActive(false);
 }
 
 void OnShootingPhaseStart()
 {
-if (phaseLabel != null) phaseLabel.text = "СТРЕЛЯЙ ПО ПТИЦАМ!";
+if (phaseLabel != null) phaseLabel.text = "Shoot'em";
 }
 
 void OnGameOver()
@@ -113,9 +113,9 @@ gameOverPanel.SetActive(true);
 
 bool success = GameManager.Instance != null && GameManager.Instance.WasSuccessful;
 if (gameOverTitle != null)
-gameOverTitle.text = success ? "ВРЕМЯ ВЫШЛО!" : "ТЫ НЕ УСПЕЛ!";
+gameOverTitle.text = success ? "Time's up" : "AHAHAHAHAHHAH";
 if (gameOverScore != null)
-gameOverScore.text = $"Итоговый счёт: {GameManager.Instance?.Score ?? 0}";
+gameOverScore.text = $"Your score: {GameManager.Instance?.Score ?? 0}";
 
 if (crosshair != null) crosshair.SetActive(false);
 if (interactPrompt != null) interactPrompt.SetActive(false);

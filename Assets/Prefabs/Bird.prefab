@@ -134,13 +134,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   health: 100
-  speed: 5
-  minSpeed: 3
-  maxSpeed: 10
+  speed: 20
+  minSpeed: 20
+  maxSpeed: 50
   waypointReachDistance: 2
   scoreValue: 10
-  flightAreaMin: {x: -100, y: 25, z: -100}
-  flightAreaMax: {x: 100, y: 40, z: 100}
+  flightAreaMin: {x: -150, y: 30, z: -150}
+  flightAreaMax: {x: 150, y: 50, z: 150}
   rotationSmoothTime: 0.2
   noiseStrength: 0.5
   noiseFrequency: 0.5

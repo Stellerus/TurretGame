@@ -43,8 +43,10 @@ public class TurretController : MonoBehaviour
     private SC_FPSController playerFPS;
     private Camera playerCamera;
     private float nextFireTime;
+    public AudioClip fireSound;
+    private AudioSource audioSource;
     private int currentAmmo;
-    private int maxAmmo = 300;
+    private int maxAmmo = 1000;
 
     void Start()
     {
@@ -55,6 +57,10 @@ public class TurretController : MonoBehaviour
         if (GameManager.Instance != null)
             GameManager.Instance.onGameOver.AddListener(OnGameOver);
         currentAmmo = maxAmmo;
+
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
     }
 
     void Update()
@@ -129,6 +135,9 @@ public class TurretController : MonoBehaviour
     void Fire()
     {
         if (firePoint == null) return;
+
+        if (audioSource != null && fireSound != null)
+            audioSource.PlayOneShot(fireSound);
 
         Vector3 origin = firePoint.position;
         Vector3 direction = firePoint.forward;
