@@ -1,47 +1,79 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// FPS-контроллер от первого лица с поддержкой режима турели.
+/// Когда игрок садится за турель (SetTurretMode(true)):
+///   — движение отключается
+///   — обзор камерой сохраняется
+///   — гравитация продолжает действовать
+/// </summary>
 [RequireComponent(typeof(CharacterController))]
-
 public class SC_FPSController : MonoBehaviour
 {
+    [Header("Скорости")]
     public float walkingSpeed = 7.5f;
     public float runningSpeed = 11.5f;
     public float jumpSpeed = 8.0f;
     public float gravity = 20.0f;
+
+    [Header("Камера")]
     public Camera playerCamera;
     public float lookSpeed = 2.0f;
     public float lookXLimit = 45.0f;
 
-    CharacterController characterController;
-    Vector3 moveDirection = Vector3.zero;
-    float rotationX = 0;
+    // Приватные поля
+    private CharacterController characterController;
+    private Vector3 moveDirection = Vector3.zero;
+    private float rotationX = 0f;
 
     [HideInInspector]
     public bool canMove = true;
+
+    private bool isOnTurret = false;
 
     void Start()
     {
         characterController = GetComponent<CharacterController>();
 
-        // Lock cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
     void Update()
     {
-        // We are grounded, so recalculate move direction based on axes
+        // ── Режим турели ──
+        if (isOnTurret)
+        {
+            // Только обзор, без движения
+            HandleCameraRotation();
+
+            // Гравитация (чтобы игрок не висел в воздухе)
+            if (!characterController.isGrounded)
+            {
+                moveDirection.y -= gravity * Time.deltaTime;
+                characterController.Move(moveDirection * Time.deltaTime);
+            }
+            else
+            {
+                moveDirection.y = -2f; // Прижимаем к земле
+            }
+            return;
+        }
+
+        // ── Обычный FPS-режим ──
+
+        // Направления
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
-        // Press Left Shift to run
+
         bool isRunning = Input.GetKey(KeyCode.LeftShift);
-        float curSpeedX = canMove ? (isRunning ? runningSpeed : walkingSpeed) * Input.GetAxis("Vertical") : 0;
-        float curSpeedY = canMove ? (isRunning ? runningSpeed : walkingSpeed) * Input.GetAxis("Horizontal") : 0;
+        float curSpeedX = canMove ? (isRunning ? runningSpeed : walkingSpeed) * Input.GetAxis("Vertical") : 0f;
+        float curSpeedY = canMove ? (isRunning ? runningSpeed : walkingSpeed) * Input.GetAxis("Horizontal") : 0f;
+
         float movementDirectionY = moveDirection.y;
         moveDirection = (forward * curSpeedX) + (right * curSpeedY);
 
+        // Прыжок
         if (Input.GetButton("Jump") && canMove && characterController.isGrounded)
         {
             moveDirection.y = jumpSpeed;
@@ -51,24 +83,54 @@ public class SC_FPSController : MonoBehaviour
             moveDirection.y = movementDirectionY;
         }
 
-        // Apply gravity. Gravity is multiplied by deltaTime twice (once here, and once below
-        // when the moveDirection is multiplied by deltaTime). This is because gravity should be applied
-        // as an acceleration (ms^-2)
+        // Гравитация
         if (!characterController.isGrounded)
         {
             moveDirection.y -= gravity * Time.deltaTime;
         }
 
-        // Move the controller
         characterController.Move(moveDirection * Time.deltaTime);
 
-        // Player and Camera rotation
+        // Обзор
         if (canMove)
         {
-            rotationX += -Input.GetAxis("Mouse Y") * lookSpeed;
-            rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
-            playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
-            transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
+            HandleCameraRotation();
         }
+    }
+
+    /// <summary>
+    /// Вращение камеры мышью.
+    /// </summary>
+    void HandleCameraRotation()
+    {
+        rotationX += -Input.GetAxis("Mouse Y") * lookSpeed;
+        rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
+
+        if (playerCamera != null)
+            playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0f, 0f);
+
+        transform.rotation *= Quaternion.Euler(0f, Input.GetAxis("Mouse X") * lookSpeed, 0f);
+    }
+
+    /// <summary>
+    /// Переключает режим турели. Вызывается из TurretController.
+    /// </summary>
+    public void SetTurretMode(bool onTurret)
+    {
+        isOnTurret = onTurret;
+
+        if (onTurret)
+        {
+            // Сбрасываем скорость при посадке
+            moveDirection = Vector3.zero;
+        }
+    }
+
+    /// <summary>
+    /// Находится ли игрок сейчас за турелью?
+    /// </summary>
+    public bool IsOnTurret()
+    {
+        return isOnTurret;
     }
 }
