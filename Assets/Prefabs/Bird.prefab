@@ -139,8 +139,8 @@ MonoBehaviour:
   maxSpeed: 10
   waypointReachDistance: 2
   scoreValue: 10
-  flightAreaMin: {x: -50, y: 2, z: -50}
-  flightAreaMax: {x: 50, y: 10, z: 50}
+  flightAreaMin: {x: -100, y: 25, z: -100}
+  flightAreaMax: {x: 100, y: 40, z: 100}
   rotationSmoothTime: 0.2
   noiseStrength: 0.5
   noiseFrequency: 0.5
